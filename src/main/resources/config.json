@@ -1,0 +1,13 @@
+{
+  "DATABASE_HOST" : "Localhost",
+  "DATABASE_PORT" : 3306,
+  "DATABASE_USERNAME" : "root",
+  "DATABASE_PASSWORD" : "nitram123",
+  "DATABASE_NAME" : "disdb",
+  "ENCRYPTION" : true,
+  "SOLR_HOST" : "localhost",
+  "SOLR_PORT" : 8983,
+  "SOLR_PATH" : "solr",
+  "SOLR_CORE" : "data",
+  "PRODUCT_TTL" : 3600
+}
