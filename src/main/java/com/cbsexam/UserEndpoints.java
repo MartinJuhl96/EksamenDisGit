@@ -25,17 +25,27 @@ public class UserEndpoints {
   @Path("/{idUser}")
   public Response getUser(@PathParam("idUser") int idUser) {
 
-    // Use the ID to get the user from the controller.
-    User user = UserController.getUser(idUser);
+    try {
+      // Use the ID to get the user from the controller.
+      User user = UserController.getUser(idUser);
 
-    // TODO: Add Encryption to JSON : FIX
-    // Convert the user object to json in order to return the object
-    String json = new Gson().toJson(user);
-    json= Encryption.encryptDecryptXOR(json);
-    // Return the user with the status code 200
-    // TODO: What should happen if something breaks down?
-    return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
-  }
+      // TODO: Add Encryption to JSON : FIX
+      // Convert the user object to json in order to return the object
+      String json = new Gson().toJson(user);
+      json = Encryption.encryptDecryptXOR(json);
+      // Return the user with the status code 200
+      // TODO: What should happen if something breaks down? : FIX for now
+      if (user == null) {
+        return Response.status(404).entity("User not found").build();
+      }else {
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      }
+    }catch(Exception e){
+        return Response.status(404).build();
+      }
+    }
+
+
 
   /** @return Responses */
   @GET

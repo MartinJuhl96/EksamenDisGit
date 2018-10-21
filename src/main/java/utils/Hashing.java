@@ -3,6 +3,8 @@ package utils;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 import org.bouncycastle.util.encoders.Hex;
 
 public final class Hashing {
@@ -58,4 +60,17 @@ public final class Hashing {
 
     return rawString;
   }
+
+  //Source: https://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/#md5-salt
+  private static byte[] getSalt() throws NoSuchAlgorithmException{
+  //Using SecureRandom generator
+    SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+    //Aray for salt
+    byte [] salt =new byte[16];
+    //random salt
+    sr.nextBytes(salt);
+    //return salt
+    return salt;
+  }
+
 }
