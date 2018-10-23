@@ -112,7 +112,7 @@ public class DatabaseController {
   }
 
 
- /* public int delete(String sql) {
+  public int delete(String sql) {
 
     // Set key to 0 as a start
     int result = 0;
@@ -140,5 +140,5 @@ public class DatabaseController {
 
     // Return the resultset which at this point will be null
     return result;
-  }*/
+  }
 }

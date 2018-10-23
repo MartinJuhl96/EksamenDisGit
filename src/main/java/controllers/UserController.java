@@ -134,25 +134,59 @@ public class UserController {
     return user;
   }
 
-  /*public static User deleteUser(User user){
+  public static void deleteUser(int userID){
 
     // Write in log that we've reach this step
-    Log.writeLog(UserController.class.getName(), user, "Actually deleting user from database", 0);
+    Log.writeLog(UserController.class.getName(), userID, "Actually deleting user from database", 0);
 
     // Check for DB Connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-    int userID = dbCon.delete(
-            "DELETE FROM user WHERE id=?");
 
-    if (userID != 0) {
-      //Update the userid of the user before returning
-      user.setId(userID);
-    } else{
-      // Return null if user has not been inserted into database
-      return null;
+    //Delete DB user
+    dbCon.delete("DELETE FROM user WHERE id=" +userID);
     }
-    return
-  }*/
+
+
+
+    //update user method
+    public static User updateUser(User chosenUser) {
+
+    // Write in log that we've reach this step
+    Log.writeLog(UserController.class.getName(), chosenUser, "Updating user ing the database", 0);
+
+    //Skal denne være der når vi laver en update ?? eller skal den ændres så der kommer nyt timestamp
+    // Set creation time for user.
+   // chosenUser.setCreatedTime(System.currentTimeMillis() / 1000L);
+
+    // Check for DB Connection
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+      // Update the user in the DB
+      // TODO: Hash the updated user password before saving it. !OBS
+     // chosenUser.setPassword(Hashing.md5(chosenUser.getPassword()));
+      dbCon.insert(
+              "UPDATE user(first_name, last_name, password, email,) WHERE id="+chosenUser.getId()+"VALUES('"
+                      + chosenUser.getFirstname()
+                      + "', '"
+                      + chosenUser.getLastname()
+                      + "', '"
+                      + chosenUser.getPassword()
+                      + "', '"
+                      + chosenUser.getEmail()
+                      + "', ");
+
+     /* if (chosenUser.getId() != 0) {
+        //Update the userid of the user before returning
+        chosenUser.setId(userID);
+      } else{
+        // Return null if user has not been inserted into database
+        return null;
+      }*/
+      // Return user
+      return chosenUser;
+  }
 }
+

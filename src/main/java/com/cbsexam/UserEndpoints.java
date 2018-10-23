@@ -99,39 +99,56 @@ public class UserEndpoints {
     return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 
-/*
+
   // TODO: Make the system able to delete users
   @POST
   @Path("/deleteUser")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response deleteUser(String body) {
+  public Response deleteUser(String userID) {
+
 // Read the json from body and transfer it to a user class
-    User chooseUser = new Gson().fromJson(body, User.class);
+    User chosenUserID = new Gson().fromJson(userID, User.class);
 
-    // Use the controller to add the user
-    User deleteUser = UserController.deleteUser(chooseUser);
+   if (doesUserExist(chosenUserID.getId())){
 
-    // Get the user back with the added ID and return it to the user
-    String json = new Gson().toJson(deleteUser);
+     UserController.deleteUser((chosenUserID.getId()));
+
+     return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with the UserID " +chosenUserID.getId()+ "has been removed").build();
+
+
+   }else {
+     //Print error message if user is not found
+     return Response.status(400).entity("User not found").build();
+   }
+  }
+  //Get the user if it exists
+  public boolean doesUserExist(int userID){
+    return UserController.getUser(userID) != null;
+}
+
+  // TODO: Make the system able to update users
+  @POST
+  @Path("/updateUser/{idUser}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response updateUser(String user) {
+
+  User chosenUser =new Gson().fromJson(user, User.class);
+
+  User userToUpdate = UserController.updateUser(chosenUser);
+
+  String json= new Gson().toJson(userToUpdate);
 
     // Return the data to the user
-    if (deleteUser != null) {
+    if (userToUpdate != null) {
       // Return a response with status 200 and JSON as type
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } else {
-      return Response.status(400).entity("Could not create user").build();
+      return Response.status(400).entity("Could not update user").build();
     }
+
+
+  //bør laves med token for user dre er logget ind, for så kan vi hente den token og bruge den i stedet for id til at opdatere
     // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
-
-  }*/
-
-
-
-  // TODO: Make the system able to update users
-  public Response updateUser(String x) {
-
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+  //  return Response.status(400).entity("Endpoint not implemented yet").build();
   }
 }

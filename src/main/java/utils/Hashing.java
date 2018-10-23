@@ -16,6 +16,10 @@ public final class Hashing {
       // We load the hashing algoritm we wish to use.
       MessageDigest md = MessageDigest.getInstance("MD5");
 
+      //Adding salt
+      byte [] salt =getSalt();
+      md.update(salt);
+
       // We convert to byte array
       byte[] byteArray = md.digest(rawString.getBytes());
 
@@ -28,7 +32,7 @@ public final class Hashing {
       }
 
       //Convert back to a single string and return
-      return sb.toString();
+      return sb.toString()+salt;
 
     } catch (java.security.NoSuchAlgorithmException e) {
 
