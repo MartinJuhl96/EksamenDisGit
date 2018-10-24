@@ -167,7 +167,7 @@ public class UserController {
       // Update the user in the DB
       // TODO: Hash the updated user password before saving it. !OBS
      // chosenUser.setPassword(Hashing.md5(chosenUser.getPassword()));
-      dbCon.insert(
+      dbCon.updateUser(
               "UPDATE user(first_name, last_name, password, email,) WHERE id="+chosenUser.getId()+"VALUES('"
                       + chosenUser.getFirstname()
                       + "', '"

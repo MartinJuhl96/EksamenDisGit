@@ -124,7 +124,37 @@ public class DatabaseController {
     try {
       // Build the statement up in a safe way
       PreparedStatement statement =
-              connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+              connection.prepareStatement(sql);
+
+      // Execute query
+      result = statement.executeUpdate();
+
+      // Get our key back in order to update the user
+      ResultSet generatedKeys = statement.getGeneratedKeys();
+      if (generatedKeys.next()) {
+        return generatedKeys.getInt(1);
+      }
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+
+    // Return the resultset which at this point will be null
+    return result;
+  }
+
+  public int updateUser(String sql) {
+
+    // Set key to 0 as a start
+    int result = 0;
+
+    // Check that we have connection
+    if (connection == null)
+      connection = getConnection();
+
+    try {
+      // Build the statement up in a safe way
+      PreparedStatement statement =
+              connection.prepareStatement(sql);
 
       // Execute query
       result = statement.executeUpdate();
