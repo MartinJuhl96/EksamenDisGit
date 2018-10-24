@@ -151,10 +151,10 @@ public class UserController {
 
 
     //update user method
-    public static User updateUser(User chosenUser) {
+    public static User updateUser(User chosenUser, int ID) {
 
     // Write in log that we've reach this step
-    Log.writeLog(UserController.class.getName(), chosenUser, "Updating user ing the database", 0);
+    Log.writeLog(UserController.class.getName(), chosenUser, "Updating user in the database", 0);
 
     //Skal denne være der når vi laver en update ?? eller skal den ændres så der kommer nyt timestamp
     // Set creation time for user.
@@ -167,17 +167,21 @@ public class UserController {
       // Update the user in the DB
       // TODO: Hash the updated user password before saving it. !OBS
      // chosenUser.setPassword(Hashing.md5(chosenUser.getPassword()));
-      dbCon.updateUser(
-              "UPDATE user(first_name, last_name, password, email,) WHERE id="+chosenUser.getId()+"VALUES('"
-                      + chosenUser.getFirstname()
-                      + "', '"
-                      + chosenUser.getLastname()
-                      + "', '"
-                      + chosenUser.getPassword()
-                      + "', '"
-                      + chosenUser.getEmail()
-                      + "', ");
-
+    //if (chosenUser.getId() !=0) {
+       dbCon.updateUser(
+               "UPDATE user(first_name, last_name, password, email) WHERE id="+ID+"VALUES('"
+                       + chosenUser.getFirstname()
+                       + "', '"
+                       + chosenUser.getLastname()
+                       + "', '"
+                       + chosenUser.getPassword()
+                       + "', '"
+                       + chosenUser.getEmail()
+                       + "', ");
+    // }
+     //else {
+       //return null;
+    // }
      /* if (chosenUser.getId() != 0) {
         //Update the userid of the user before returning
         chosenUser.setId(userID);
@@ -185,6 +189,7 @@ public class UserController {
         // Return null if user has not been inserted into database
         return null;
       }*/
+
       // Return user
       return chosenUser;
   }

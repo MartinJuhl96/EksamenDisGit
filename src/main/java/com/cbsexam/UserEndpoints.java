@@ -130,16 +130,18 @@ public class UserEndpoints {
   @POST
   @Path("/updateUser/{idUser}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response updateUser(String user) {
+  public Response updateUser(@PathParam("idUser") int idUser, String browserData) {
 
-  User chosenUser =new Gson().fromJson(user, User.class);
+   User chosenUser = UserController.getUser(idUser);
 
-  User userToUpdate = UserController.updateUser(chosenUser);
+   User userToUpdate=new Gson().fromJson(browserData, User.class);
 
-  String json= new Gson().toJson(userToUpdate);
+   UserController.updateUser(chosenUser);
+
+   String json=new Gson().toJson(userToUpdate);
 
     // Return the data to the user
-    if (userToUpdate != null) {
+    if (chosenUser != null) {
       // Return a response with status 200 and JSON as type
       return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
     } else {
