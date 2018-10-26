@@ -151,14 +151,14 @@ public class UserController {
 
 
     //update user method
-    public static User updateUser(User chosenUser, int ID) {
+    public static User updateUser(User userDataToUpdate, int idUser) {
 
     // Write in log that we've reach this step
-    Log.writeLog(UserController.class.getName(), chosenUser, "Updating user in the database", 0);
+    Log.writeLog(UserController.class.getName(), userDataToUpdate, "Updating user in the database", 0);
 
     //Skal denne være der når vi laver en update ?? eller skal den ændres så der kommer nyt timestamp
     // Set creation time for user.
-   // chosenUser.setCreatedTime(System.currentTimeMillis() / 1000L);
+   // userDataToUpdate.setCreatedTime(System.currentTimeMillis() / 1000L);
 
     // Check for DB Connection
     if (dbCon == null) {
@@ -166,32 +166,36 @@ public class UserController {
     }
       // Update the user in the DB
       // TODO: Hash the updated user password before saving it. !OBS
-     // chosenUser.setPassword(Hashing.md5(chosenUser.getPassword()));
-    //if (chosenUser.getId() !=0) {
+     // userDataToUpdate.setPassword(Hashing.md5(userDataToUpdate.getPassword()));
+    //if (ID !=0) {
        dbCon.updateUser(
-               "UPDATE user(first_name, last_name, password, email) WHERE id="+ID+"VALUES('"
-                       + chosenUser.getFirstname()
-                       + "', '"
-                       + chosenUser.getLastname()
-                       + "', '"
-                       + chosenUser.getPassword()
-                       + "', '"
-                       + chosenUser.getEmail()
-                       + "', ");
-    // }
+               "UPDATE user SET first_name='"+userDataToUpdate.getFirstname()+"', last_name='"+userDataToUpdate.getLastname()+"', password='"+userDataToUpdate.getPassword()+"', email='"+userDataToUpdate.getEmail()+"' WHERE id='"+idUser+"'");
+
+
+              /* "UPDATE user SET first_name, last_name, password, email) WHERE id="+userDataToUpdate.getId()+" VALUES('"
+                       + userDataToUpdate.getFirstname()
+                       + "''"
+                       + userDataToUpdate.getLastname()
+                       + "''"
+                       + userDataToUpdate.getPassword()
+                       + "''"
+                       + userDataToUpdate.getEmail()
+                       + "','");*/
+
+   // }
      //else {
-       //return null;
-    // }
-     /* if (chosenUser.getId() != 0) {
+    //   return null;
+   // }
+     /* if (userDataToUpdate.getId() != 0) {
         //Update the userid of the user before returning
-        chosenUser.setId(userID);
+        userDataToUpdate.setId(userID);
       } else{
         // Return null if user has not been inserted into database
         return null;
       }*/
 
       // Return user
-      return chosenUser;
+      return userDataToUpdate;
   }
 }
 

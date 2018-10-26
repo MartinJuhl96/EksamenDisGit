@@ -132,13 +132,19 @@ public class UserEndpoints {
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateUser(@PathParam("idUser") int idUser, String browserData) {
 
+    //Henter brugeren ud på id
    User chosenUser = UserController.getUser(idUser);
 
-   User userToUpdate=new Gson().fromJson(browserData, User.class);
+   //Henter data indtastet i browseren og gemmer det i user objektet userDataToUpdate
+   User userDataToUpdate=new Gson().fromJson(browserData, User.class);
 
-   UserController.updateUser(chosenUser);
+  //Kalder usercontrolleren og sender userid og browserdata med over i usercontrolleren.
+   UserController.updateUser(userDataToUpdate, idUser);
 
-   String json=new Gson().toJson(userToUpdate);
+   //Henter brugeres ID med så det skrives ud
+   User gettingUserId=UserController.getUser(idUser);
+
+   String json=new Gson().toJson(gettingUserId);
 
     // Return the data to the user
     if (chosenUser != null) {
