@@ -3,11 +3,7 @@ package com.cbsexam;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
@@ -127,7 +123,7 @@ public class UserEndpoints {
 }
 
   // TODO: Make the system able to update users :FIX for now
-  @POST
+  @PUT
   @Path("/updateUser/{idUser}")
   @Consumes(MediaType.APPLICATION_JSON)
   public Response updateUser(@PathParam("idUser") int idUser, String browserData) {

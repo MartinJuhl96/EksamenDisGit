@@ -18,7 +18,7 @@ public final class Hashing {
 
       //Adding salt
 
-      md.update(getSalt());
+      md.update(getSalt().getBytes());
 
       // We convert to byte array
       byte[] byteArray = md.digest(rawString.getBytes());
@@ -43,13 +43,13 @@ public final class Hashing {
     return null;
   }
 
-  // TODO: You should add a salt and make this secure : FIX but not testet
+  // TODO: You should add a salt and make this secure : FIX
   public static String sha(String rawString) {
     try {
       // We load the hashing algoritm we wish to use.
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
 
-      digest.update(getSalt());
+      digest.update(getSalt().getBytes());
 
       // We convert to byte array
       byte[] hash = digest.digest(rawString.getBytes(StandardCharsets.UTF_8));
@@ -67,14 +67,10 @@ public final class Hashing {
     return rawString;
   }
 
-  //Source: https://howtodoinjava.com/security/how-to-generate-secure-password-hash-md5-sha-pbkdf2-bcrypt-examples/#md5-salt
-  private static byte[] getSalt() throws NoSuchAlgorithmException{
-  //Using SecureRandom generator
-    SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-    //Aray for salt
-    byte [] salt =new byte[16];
-    //random salt
-    sr.nextBytes(salt);
+
+  private static String getSalt(){
+
+    String salt="godtmedsalt";
     //return salt
     return salt;
   }

@@ -156,43 +156,16 @@ public class UserController {
     // Write in log that we've reach this step
     Log.writeLog(UserController.class.getName(), userDataToUpdate, "Updating user in the database", 0);
 
-    //Skal denne være der når vi laver en update ?? eller skal den ændres så der kommer nyt timestamp
-    // Set creation time for user.
-   // userDataToUpdate.setCreatedTime(System.currentTimeMillis() / 1000L);
-
     // Check for DB Connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
       // Update the user in the DB
-      // TODO: Hash the updated user password before saving it. !OBS
-     // userDataToUpdate.setPassword(Hashing.md5(userDataToUpdate.getPassword()));
-    //if (ID !=0) {
+      // TODO: Hash the updated user password before saving it. FIX(Created TODO by me)
+     userDataToUpdate.setPassword(Hashing.md5(userDataToUpdate.getPassword()));
        dbCon.updateUser(
                "UPDATE user SET first_name='"+userDataToUpdate.getFirstname()+"', last_name='"+userDataToUpdate.getLastname()+"', password='"+userDataToUpdate.getPassword()+"', email='"+userDataToUpdate.getEmail()+"' WHERE id='"+idUser+"'");
 
-
-              /* "UPDATE user SET first_name, last_name, password, email) WHERE id="+userDataToUpdate.getId()+" VALUES('"
-                       + userDataToUpdate.getFirstname()
-                       + "''"
-                       + userDataToUpdate.getLastname()
-                       + "''"
-                       + userDataToUpdate.getPassword()
-                       + "''"
-                       + userDataToUpdate.getEmail()
-                       + "','");*/
-
-   // }
-     //else {
-    //   return null;
-   // }
-     /* if (userDataToUpdate.getId() != 0) {
-        //Update the userid of the user before returning
-        userDataToUpdate.setId(userID);
-      } else{
-        // Return null if user has not been inserted into database
-        return null;
-      }*/
 
       // Return user
       return userDataToUpdate;
