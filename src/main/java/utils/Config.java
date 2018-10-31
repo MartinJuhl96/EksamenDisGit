@@ -20,9 +20,20 @@ public final class Config {
   private static String SOLR_PATH;
   private static String SOLR_CORE;
   private static long PRODUCT_TTL;
+  private static long USER_TTL;
+  private static long ORDER_TTL;
+
 
   public static long getProductTtl() {
     return PRODUCT_TTL;
+  }
+
+  public static long getUserTtl() {
+    return USER_TTL;
+  }
+
+  public static long getOrderTtl(){
+    return ORDER_TTL;
   }
 
   public static String getDatabaseHost() {

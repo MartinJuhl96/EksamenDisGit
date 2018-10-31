@@ -1,5 +1,6 @@
 package com.cbsexam;
 
+import cache.UserCache;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import utils.Log;
 
 @Path("user")
 public class UserEndpoints {
-
+UserCache userCache=new UserCache();
   /**
    * @param idUser
    * @return Responses
@@ -52,7 +53,7 @@ public class UserEndpoints {
     Log.writeLog(this.getClass().getName(), this, "Get all users", 0);
 
     // Get a list of users
-    ArrayList<User> users = UserController.getUsers();
+    ArrayList<User> users = userCache.getUsers(false);
 
     // TODO: Add Encryption to JSON : FIX
     // Transfer users to json in order to return it to the user
@@ -72,6 +73,9 @@ public class UserEndpoints {
 
     // Use the controller to add the user
     User createUser = UserController.createUser(newUser);
+
+    //Updates the user cache when a new user is created
+    userCache.getUsers(true);
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createUser);

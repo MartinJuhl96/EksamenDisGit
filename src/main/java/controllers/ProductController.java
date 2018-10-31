@@ -97,7 +97,7 @@ public class ProductController {
       dbCon = new DatabaseController();
     }
 
-    // TODO: Use caching layer.
+    // TODO: Use caching layer. :FIX but impl in productEndpoint
     String sql = "SELECT * FROM product";
 
     ResultSet rs = dbCon.query(sql);
@@ -146,11 +146,11 @@ public class ProductController {
             + product.getPrice()
             + "', '"
             + product.getDescription()
-            + "', "
+            + "', '"
             + product.getStock()
-            + "', "
+            + "', '"
             + product.getCreatedTime()
-            + ")");
+            + "')");
 
     if (productID != 0) {
       //Update the productid of the product before returning
