@@ -26,13 +26,13 @@ public class ProductCache {
     // Otherwise we look at the age of the cache and figure out if we should update.
     // If the list is empty we also check for new products
     if (forceUpdate
-        || ((this.created + this.ttl) >= (System.currentTimeMillis() / 1000L))
-        || this.products==null) {
+        || ((this.created + this.ttl) <= (System.currentTimeMillis() / 1000L))
+            ||this.products.isEmpty()) {
 
       // Get products from controller, since we wish to update.
       ArrayList<Product> products = ProductController.getProducts();
 
-      // Set products for the instance and set created timestamp
+      // Set products for the instance and set created timestamp. Sets the abve arraylist = the arraylist in top of the class
       this.products = products;
       this.created = System.currentTimeMillis() / 1000L;
     }
