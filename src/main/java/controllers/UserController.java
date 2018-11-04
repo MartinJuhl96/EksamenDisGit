@@ -3,6 +3,8 @@ package controllers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Random;
+
 import model.User;
 import utils.Hashing;
 import utils.Log;
@@ -170,5 +172,76 @@ public class UserController {
       // Return user
       return userDataToUpdate;
   }
+
+  public static User checkUser(String firstName, String passWord) {
+
+    // Check for DB Connection
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+
+
+    String sql_statement = "SELECT * FROM user WHERE first_name='" + firstName + "', password='" + passWord;
+    ResultSet resultSet = dbCon.query(sql_statement);
+
+    //dbCon.query("SELECT * FROM user WHERE first_name='" + firstName + "', password='" + passWord);
+
+    User user = null;
+    try {
+      while (resultSet.next()) {
+        user = new User(
+                resultSet.getInt("id"),
+                resultSet.getString("first_name"),
+                resultSet.getString("last_name"),
+                resultSet.getString("password"),
+                resultSet.getString("email"));
+      }
+    } catch (SQLException e) {
+      System.out.println(e.getMessage());
+    }
+
+
+    return user;
+  }
+  /*
+    int id=0;
+    String newToken =null;
+
+    if (dbCon==null){
+      dbCon = new DatabaseController();
+    }
+
+    if (usertoValidate.getAuthToken != null){
+      try {
+        ResultSet resultSet=dbCon.query("SELECT * FROM user WHERE token = \'"+usertoValidate.getAuthToken()+"\'");
+        if (resultSet.next()){
+          System.out.print(resultSet.getString("token"));
+          return resultSet.getString("token");
+        }
+      }catch (SQLException q){
+        q.printStackTrace();
+      }
+    }
+    try {
+      ResultSet resultSet1 =dbCon.query("SELECT id FROM user WHERE" + "email =" + "\'" +usertoValidate.getEmail() + "\'" + "AND password =" +"\'" +Hashing.sha(usertoValidate.getPassword()
+      + "\'"));
+      if (resultSet1.next()){
+        id=resultSet1.getInt("id");
+      }
+    }catch (SQLException e){
+      e.printStackTrace();
+    }
+  if (id==0){
+    return null;
+  }
+  else {
+    newToken =Hashing.sha(String.valueOf(new Random().nextDouble()));
+    usertoValidate.setAuthToken(newToken);
+
+    dbCon.
+  }*/
+
+
+
 }
 

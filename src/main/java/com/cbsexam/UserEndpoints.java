@@ -10,6 +10,11 @@ import javax.ws.rs.core.Response;
 import model.User;
 import utils.Encryption;
 import utils.Log;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+import java.util.Date;
 
 @Path("user")
 public class UserEndpoints {
@@ -93,10 +98,42 @@ UserCache userCache=new UserCache();
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response loginUser(String x) {
-  
+  public Response loginUser(User userToValidate) {
+
+  Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+  boolean authUser = UserController.checkUser(userToValidate.getFirstname(), userToValidate.getPassword());
+
+  if (authUser){
+  long TOKEN_TTL = System.currentTimeMillis();
+
+  //A signed JWT is called a JWS
+  String jws = Jwts.builder()
+          .signWith(key)
+          .setSubject(Integer.toString(userToValidate.getId()))
+          .setIssuedAt(new Date(TOKEN_TTL))
+          .setExpiration(new Date(TOKEN_TTL+1200000))
+          .compact();
+
+  }
+
+ //   System.out.println(jws);
+ // assert Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getBody().getSubject().equals("Joe");
+
+ /*   User usertoValidate =new Gson().fromJson(userDatatoValidate, User.class);
+
+    String securityToken =UserController.checkUser(usertoValidate);
+
+
+    if (securityToken != null){
+      String json =new Gson().toJson(usertoValidate);
+      usertoValidate.setAuthToken(securityToken);
+      System.out.println(usertoValidate.getAuthToken());
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+    }
+    */
     // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    return Response.status(400).entity("Access denied").build();
   }
 
 
