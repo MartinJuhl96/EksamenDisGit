@@ -22,7 +22,12 @@ public final class Config {
   private static long PRODUCT_TTL;
   private static long USER_TTL;
   private static long ORDER_TTL;
+  private static String ENCRYPTIONKEY;
+  private static String SALT;
 
+  public static String getENCRYPTIONKEY(){return ENCRYPTIONKEY;}
+
+  public static String getSALT(){return SALT;}
 
   public static long getProductTtl() {
     return PRODUCT_TTL;
@@ -110,5 +115,9 @@ public final class Config {
     SOLR_PATH = json.get("SOLR_PATH").toString().replace("\"", "");
     SOLR_CORE = json.get("SOLR_CORE").toString().replace("\"", "");
     PRODUCT_TTL = json.get("PRODUCT_TTL").getAsLong();
+    USER_TTL = json.get("USER_TTL").getAsLong();
+    ORDER_TTL = json.get("ORDER_TTL").getAsLong();
+    ENCRYPTIONKEY = json.get("ENCRYPTIONKEY").toString();
+    SALT = json.get("SALT").toString();
   }
 }
