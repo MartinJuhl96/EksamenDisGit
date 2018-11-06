@@ -40,7 +40,9 @@ public class UserController {
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getString("password"),
-                rs.getString("email"));
+                rs.getString("email"),
+                rs.getString("token"));
+
 
         // return the create object
         return user;
@@ -83,7 +85,9 @@ public class UserController {
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getString("password"),
-                rs.getString("email"));
+                rs.getString("email"),
+                rs.getString("token"));
+
 
         // Add element to list
         users.add(user);
@@ -165,7 +169,7 @@ public class UserController {
       // Update the user in the DB
       // TODO: Hash the updated user password before saving it. FIX(Created TODO by me)
      userDataToUpdate.setPassword(Hashing.md5(userDataToUpdate.getPassword()));
-       dbCon.updateUser(
+       dbCon.update(
                "UPDATE user SET first_name='"+userDataToUpdate.getFirstname()+"', last_name='"+userDataToUpdate.getLastname()+"', password='"+userDataToUpdate.getPassword()+"', email='"+userDataToUpdate.getEmail()+"' WHERE id='"+idUser+"'");
 
 
@@ -173,7 +177,7 @@ public class UserController {
       return userDataToUpdate;
   }
 
-  public static User checkUser(String firstName, String passWord) {
+  public static User checkUser(String email, String passWord) {
 
     // Check for DB Connection
     if (dbCon == null) {
@@ -181,7 +185,7 @@ public class UserController {
     }
 
 
-    String sql_statement = "SELECT * FROM user WHERE first_name='" + firstName + "', password='" + passWord;
+    String sql_statement = "SELECT * FROM user WHERE email='" + email + "' AND password='" + passWord+"'";
     ResultSet resultSet = dbCon.query(sql_statement);
 
     //dbCon.query("SELECT * FROM user WHERE first_name='" + firstName + "', password='" + passWord);
@@ -194,7 +198,9 @@ public class UserController {
                 resultSet.getString("first_name"),
                 resultSet.getString("last_name"),
                 resultSet.getString("password"),
-                resultSet.getString("email"));
+                resultSet.getString("email"),
+                resultSet.getString("token"));
+
       }
     } catch (SQLException e) {
       System.out.println(e.getMessage());
@@ -203,45 +209,26 @@ public class UserController {
 
     return user;
   }
-  /*
-    int id=0;
-    String newToken =null;
 
-    if (dbCon==null){
+/*  public static String getToken(User user){
+
+    // Check for DB Connection
+    if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
-    if (usertoValidate.getAuthToken != null){
-      try {
-        ResultSet resultSet=dbCon.query("SELECT * FROM user WHERE token = \'"+usertoValidate.getAuthToken()+"\'");
-        if (resultSet.next()){
-          System.out.print(resultSet.getString("token"));
-          return resultSet.getString("token");
-        }
-      }catch (SQLException q){
-        q.printStackTrace();
-      }
-    }
-    try {
-      ResultSet resultSet1 =dbCon.query("SELECT id FROM user WHERE" + "email =" + "\'" +usertoValidate.getEmail() + "\'" + "AND password =" +"\'" +Hashing.sha(usertoValidate.getPassword()
-      + "\'"));
-      if (resultSet1.next()){
-        id=resultSet1.getInt("id");
-      }
-    }catch (SQLException e){
-      e.printStackTrace();
-    }
-  if (id==0){
-    return null;
-  }
-  else {
-    newToken =Hashing.sha(String.valueOf(new Random().nextDouble()));
-    usertoValidate.setAuthToken(newToken);
+    dbCon.query("SELECT token FROM user WHERE id='" +user.getId());
 
-    dbCon.
+    return user.getToken();
   }*/
 
-
-
+  public static String updateToken(User user, String jws) {
+    // Check for DB Connection
+    if (dbCon == null) {
+      dbCon = new DatabaseController();
+    }
+  dbCon.update("UPDATE user SET token='"+jws+"'WHERE id='" +user.getId()+"'");
+return jws;
+  }
 }
 

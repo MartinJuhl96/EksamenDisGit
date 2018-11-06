@@ -142,7 +142,7 @@ public class DatabaseController {
     return result;
   }
 
-  public int updateUser(String sql) {
+  public int update(String sql) {
 
     // Set key to 0 as a start
     int result = 0;
@@ -160,10 +160,10 @@ public class DatabaseController {
       result = statement.executeUpdate();
 
       // Get our key back in order to update the user
-      ResultSet generatedKeys = statement.getGeneratedKeys();
+     /* ResultSet generatedKeys = statement.getGeneratedKeys();
       if (generatedKeys.next()) {
         return generatedKeys.getInt(1);
-      }
+      }*/
     } catch (SQLException e) {
       System.out.println(e.getMessage());
     }
@@ -171,4 +171,6 @@ public class DatabaseController {
     // Return the resultset which at this point will be null
     return result;
   }
+
+
 }

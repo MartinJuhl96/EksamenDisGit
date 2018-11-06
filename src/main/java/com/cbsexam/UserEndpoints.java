@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
 import utils.Encryption;
+import utils.Hashing;
 import utils.Log;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,7 +19,8 @@ import java.util.Date;
 
 @Path("user")
 public class UserEndpoints {
-UserCache userCache=new UserCache();
+  UserCache userCache = new UserCache();
+
   /**
    * @param idUser
    * @return Responses
@@ -39,17 +41,18 @@ UserCache userCache=new UserCache();
       // TODO: What should happen if something breaks down? : FIX for now
       if (user == null) {
         return Response.status(404).entity("User not found").build();
-      }else {
+      } else {
         return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
       }
-    }catch(Exception e){
-        return Response.status(404).build();
-      }
+    } catch (Exception e) {
+      return Response.status(404).build();
     }
+  }
 
 
-
-  /** @return Responses */
+  /**
+   * @return Responses
+   */
   @GET
   @Path("/")
   public Response getUsers() {
@@ -63,7 +66,7 @@ UserCache userCache=new UserCache();
     // TODO: Add Encryption to JSON : FIX
     // Transfer users to json in order to return it to the user
     String json = new Gson().toJson(users);
-    json=Encryption.encryptDecryptXOR(json);
+    json = Encryption.encryptDecryptXOR(json);
     // Return the users with the status code 200
     return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
   }
@@ -98,102 +101,102 @@ UserCache userCache=new UserCache();
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response loginUser(User userToValidate) {
+  public Response loginUser(String userDataToValidate) {
 
-  Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    //Saves the data from the browser (userDataToValidate) and transfers it to a user class (userToValidate)
+    User userToValidate =new Gson().fromJson(userDataToValidate, User.class);
 
-  boolean authUser = UserController.checkUser(userToValidate.getFirstname(), userToValidate.getPassword());
-
-  if (authUser){
-  long TOKEN_TTL = System.currentTimeMillis();
-
-  //A signed JWT is called a JWS
-  String jws = Jwts.builder()
-          .signWith(key)
-          .setSubject(Integer.toString(userToValidate.getId()))
-          .setIssuedAt(new Date(TOKEN_TTL))
-          .setExpiration(new Date(TOKEN_TTL+1200000))
-          .compact();
-
-  }
-
- //   System.out.println(jws);
- // assert Jwts.parser().setSigningKey(key).parseClaimsJws(jws).getBody().getSubject().equals("Joe");
-
- /*   User usertoValidate =new Gson().fromJson(userDatatoValidate, User.class);
-
-    String securityToken =UserController.checkUser(usertoValidate);
+    //Gets the emal and password of the user trying to login, and sends it to checkuser method in UserController.
+    //Hashes the password as well as passwords in DB are hashed strings, so we have no plain text passwords
+    User checkedUser =UserController.checkUser(userToValidate.getEmail(), userToValidate.getPassword()); //TODO not hashed
+            //Hashing.md5(userToValidate.getPassword()));
 
 
-    if (securityToken != null){
-      String json =new Gson().toJson(usertoValidate);
-      usertoValidate.setAuthToken(securityToken);
-      System.out.println(usertoValidate.getAuthToken());
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+    if (checkedUser != null && checkedUser.getToken() == null) {
+      Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+      long TOKEN_TTL = System.currentTimeMillis();
+
+      //A signed JWT is called a JWS
+      String jws = Jwts.builder()
+              .signWith(key)
+              .setSubject(Integer.toString(userToValidate.getId()))
+              .setIssuedAt(new Date(TOKEN_TTL))
+              .setExpiration(new Date(TOKEN_TTL + 10000))
+              .compact();
+
+      checkedUser.setToken(jws);
+      String json = new Gson().toJson(jws);
+
+      UserController.updateToken(checkedUser,jws);
+
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("You are now logged in. Your Token is as follows \n" + json).build();
+    } else if (checkedUser != null && checkedUser.getToken() != null) {
+      String activeToken = checkedUser.getToken(); //denne bruges hvis vi laver token som en del af user
+  //    String activeToken = UserController.getToken(checkedUser);
+      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("Welcome back. You are now logged in. Your Token is as follows\n" + activeToken).build();
+    } else {
+      return Response.status(400).entity("Access denied. Email or password is wrong. Please try again").build();
     }
-    */
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Access denied").build();
   }
 
-
-  // TODO: Make the system able to delete users : FIX for NOW
-  @POST
-  @Path("/deleteUser")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response deleteUser(String userID) {
+    // TODO: Make the system able to delete users : FIX for NOW
+    @POST
+    @Path("/deleteUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response deleteUser (String userID){
 
 // Read the json from body and transfer it to a user class
-    User chosenUserID = new Gson().fromJson(userID, User.class);
+      User chosenUserID = new Gson().fromJson(userID, User.class);
 
-   if (doesUserExist(chosenUserID.getId())){
+      if (doesUserExist(chosenUserID.getId())) {
 
-     UserController.deleteUser((chosenUserID.getId()));
+        UserController.deleteUser((chosenUserID.getId()));
 
-     return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with the UserID " +chosenUserID.getId()+ "has been removed").build();
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with the UserID " + chosenUserID.getId() + "has been removed").build();
 
 
-   }else {
-     //Print error message if user is not found
-     return Response.status(400).entity("User not found").build();
-   }
-  }
-  //Get the user if it exists
-  public boolean doesUserExist(int userID){
-    return UserController.getUser(userID) != null;
-}
-
-  // TODO: Make the system able to update users :FIX for now
-  @PUT
-  @Path("/updateUser/{idUser}")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response updateUser(@PathParam("idUser") int idUser, String browserData) {
-
-    //Henter brugeren ud på id
-   User chosenUser = UserController.getUser(idUser);
-
-   //Henter data indtastet i browseren og gemmer det i user objektet userDataToUpdate
-   User userDataToUpdate=new Gson().fromJson(browserData, User.class);
-
-  //Kalder usercontrolleren og sender userid og browserdata med over i usercontrolleren.
-   UserController.updateUser(userDataToUpdate, idUser);
-
-   //Henter brugeres ID med så det skrives ud
-   User gettingUserId=UserController.getUser(idUser);
-
-   String json=new Gson().toJson(gettingUserId);
-
-    // Return the data to the user
-    if (chosenUser != null) {
-      // Return a response with status 200 and JSON as type
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
-    } else {
-      return Response.status(400).entity("Could not update user").build();
+      } else {
+        //Print error message if user is not found
+        return Response.status(400).entity("User not found").build();
+      }
+    }
+    //Get the user if it exists
+    public boolean doesUserExist ( int userID){
+      return UserController.getUser(userID) != null;
     }
 
+    // TODO: Make the system able to update users :FIX for now
+    @PUT
+    @Path("/updateUser/{idUser}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUser ( @PathParam("idUser") int idUser, String browserData){
 
-  //bør laves med token for user dre er logget ind, for så kan vi hente den token og bruge den i stedet for id til at opdatere
-    // Return a response with status 200 and JSON as type
-  //  return Response.status(400).entity("Endpoint not implemented yet").build();
+      //Henter brugeren ud på id
+      User chosenUser = UserController.getUser(idUser);
+
+      //Henter data indtastet i browseren og gemmer det i user objektet userDataToUpdate
+      User userDataToUpdate = new Gson().fromJson(browserData, User.class);
+
+      //Kalder usercontrolleren og sender userid og browserdata med over i usercontrolleren.
+      UserController.updateUser(userDataToUpdate, idUser);
+
+      //Henter brugeres ID med så det skrives ud
+      User gettingUserId = UserController.getUser(idUser);
+
+      String json = new Gson().toJson(gettingUserId);
+
+      // Return the data to the user
+      if (chosenUser != null) {
+        // Return a response with status 200 and JSON as type
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+      } else {
+        return Response.status(400).entity("Could not update user").build();
+      }
+
+
+      //bør laves med token for user dre er logget ind, for så kan vi hente den token og bruge den i stedet for id til at opdatere
+      // Return a response with status 200 and JSON as type
+      //  return Response.status(400).entity("Endpoint not implemented yet").build();
+    }
   }
-}
+
