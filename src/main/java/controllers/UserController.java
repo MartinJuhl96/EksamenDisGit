@@ -40,8 +40,8 @@ public class UserController {
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getString("password"),
-                rs.getString("email"),
-                rs.getString("token"));
+                rs.getString("email"));
+
 
 
         // return the create object
@@ -85,8 +85,7 @@ public class UserController {
                 rs.getString("first_name"),
                 rs.getString("last_name"),
                 rs.getString("password"),
-                rs.getString("email"),
-                rs.getString("token"));
+                rs.getString("email"));
 
 
         // Add element to list
@@ -198,8 +197,8 @@ public class UserController {
                 resultSet.getString("first_name"),
                 resultSet.getString("last_name"),
                 resultSet.getString("password"),
-                resultSet.getString("email"),
-                resultSet.getString("token"));
+                resultSet.getString("email"));
+
 
       }
     } catch (SQLException e) {
@@ -222,13 +221,13 @@ public class UserController {
     return user.getToken();
   }*/
 
-  public static String updateToken(User user, String jws) {
+/*  public static String updateToken(User user, String jws) {
     // Check for DB Connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
   dbCon.update("UPDATE user SET token='"+jws+"'WHERE id='" +user.getId()+"'");
 return jws;
-  }
+  }*/
 }
 

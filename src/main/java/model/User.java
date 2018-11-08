@@ -10,13 +10,12 @@ public class User {
   private long createdTime;
   private String token;
 
-  public User(int id, String firstname, String lastname, String password, String email, String token) {
+  public User(int id, String firstname, String lastname, String password, String email) {
     this.id = id;
     this.firstname = firstname;
     this.lastname = lastname;
     this.password = password;
     this.email = email;
-    this.token = token; //TODO: check om denne konstruktør skal ændres OBS på usercontroller i getmetoder
   }
 
   public int getId() {

@@ -1,6 +1,11 @@
 package com.cbsexam;
 
 import cache.UserCache;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.google.gson.Gson;
 import controllers.UserController;
 import java.util.ArrayList;
@@ -11,9 +16,6 @@ import model.User;
 import utils.Encryption;
 import utils.Hashing;
 import utils.Log;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 
@@ -104,40 +106,40 @@ public class UserEndpoints {
   public Response loginUser(String userDataToValidate) {
 
     //Saves the data from the browser (userDataToValidate) and transfers it to a user class (userToValidate)
-    User userToValidate =new Gson().fromJson(userDataToValidate, User.class);
+    User userToValidate = new Gson().fromJson(userDataToValidate, User.class);
 
-    //Gets the emal and password of the user trying to login, and sends it to checkuser method in UserController.
+    //Gets the email and password of the user trying to login, and sends it to checkuser method in UserController.
     //Hashes the password as well as passwords in DB are hashed strings, so we have no plain text passwords
-    User checkedUser =UserController.checkUser(userToValidate.getEmail(), userToValidate.getPassword()); //TODO not hashed
-            //Hashing.md5(userToValidate.getPassword()));
+    User checkedUser = UserController.checkUser(userToValidate.getEmail(), userToValidate.getPassword()); //TODO not hashed
+    //Hashing.md5(userToValidate.getPassword()));
 
+try{
+    if (checkedUser != null) {
 
-    if (checkedUser != null && checkedUser.getToken() == null) {
-      Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-      long TOKEN_TTL = System.currentTimeMillis();
+        Algorithm algorithm = Algorithm.HMAC256("secret");
+        String token = JWT.create()
+                .withIssuer("auth0")
+                .withIssuedAt(new Date(System.currentTimeMillis()))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 900000))
+                .withSubject(Integer.toString(checkedUser.getId()))
+                .sign(algorithm);
 
-      //A signed JWT is called a JWS
-      String jws = Jwts.builder()
-              .signWith(key)
-              .setSubject(Integer.toString(userToValidate.getId()))
-              .setIssuedAt(new Date(TOKEN_TTL))
-              .setExpiration(new Date(TOKEN_TTL + 10000))
-              .compact();
+        checkedUser.setToken(token);
+        String json = new Gson().toJson(token);
 
-      checkedUser.setToken(jws);
-      String json = new Gson().toJson(jws);
+              //bruges med token ift DB hvis det skal bruges
+        //    UserController.updateToken(checkedUser,jws);  // Denne linje og kode herunder(+DB) fjernes hvis vi ønsker at gennerere en token hver gen en bruger logger ind.
 
-      UserController.updateToken(checkedUser,jws);
-
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("You are now logged in. Your Token is as follows \n" + json).build();
-    } else if (checkedUser != null && checkedUser.getToken() != null) {
-      String activeToken = checkedUser.getToken(); //denne bruges hvis vi laver token som en del af user
-  //    String activeToken = UserController.getToken(checkedUser);
-      return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("Welcome back. You are now logged in. Your Token is as follows\n" + activeToken).build();
-    } else {
-      return Response.status(400).entity("Access denied. Email or password is wrong. Please try again").build();
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("You are now logged in. Your Token is as follows \n" + json).build();
+      } else {
+        return Response.status(400).entity("Access denied. Email or password is wrong. Please try again").build();
+      }
+  }
+  catch(JWTCreationException exception){
+  return null;
     }
   }
+
 
     // TODO: Make the system able to delete users : FIX for NOW
     @POST
@@ -145,14 +147,14 @@ public class UserEndpoints {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteUser (String userID){
 
-// Read the json from body and transfer it to a user class
-      User chosenUserID = new Gson().fromJson(userID, User.class);
+    // Read the json from body and transfer it to a user class
+      User chosenUser = new Gson().fromJson(userID, User.class);
 
-      if (doesUserExist(chosenUserID.getId())) {
+      if ( doesUserExist(chosenUser.getId())) {
 
-        UserController.deleteUser((chosenUserID.getId()));
+        UserController.deleteUser((chosenUser.getId()));
 
-        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with the UserID " + chosenUserID.getId() + "has been removed").build();
+        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User with the UserID " + chosenUser.getId() + "has been removed").build();
 
 
       } else {
@@ -192,11 +194,26 @@ public class UserEndpoints {
       } else {
         return Response.status(400).entity("Could not update user").build();
       }
-
-
       //bør laves med token for user dre er logget ind, for så kan vi hente den token og bruge den i stedet for id til at opdatere
       // Return a response with status 200 and JSON as type
       //  return Response.status(400).entity("Endpoint not implemented yet").build();
     }
+
+    //Verify token
+    private boolean verifyToken (String token, User user) {
+    try {
+
+      Algorithm algorithm = Algorithm.HMAC256("secret");
+      JWTVerifier verifier = JWT.require(algorithm)
+              .withIssuer("auth0")
+              .withSubject(Integer.toString(user.getId()))
+              .build();
+      verifier.verify(token);
+      return true;
+    } catch (JWTVerificationException exception) {
+      return false;
+    }
+  }
+
   }
 

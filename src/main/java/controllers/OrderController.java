@@ -76,7 +76,7 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
     // TODO: typo missing 's' in orders : FIX
-    String sql = "SELECT * FROM orders";
+    String sql = "SELECT * FROM orders INNER jOIN first_name, last_name, email FROM user ON ";
 
     ResultSet rs = dbCon.query(sql);
     ArrayList<Order> orders = new ArrayList<Order>();
