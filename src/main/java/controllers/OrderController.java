@@ -78,7 +78,26 @@ public class OrderController {
     }
     // TODO: typo missing 's' in orders : FIX
 
-      String sql = "SELECT \n" +
+   String sql = "SELECT \n" +
+           "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
+           "    o.id as order_id, o.billing_address_id, o.shipping_address_id,\n" +
+           "    product.id as product_id,\n" +
+           "    line_item.id as line_item_id,\n" +
+           "    product.product_name,\n" +
+           "    product.price,\n" +
+           "    line_item.quantity, \n" +
+           "    o.order_total,\n" +
+           "    b.street_address as billing_address, b.city as billing_address_city, b.zipcode as billing_address_zipcode,\n" +
+           "    s.street_address as shipping_address, s.city as shipping_address_city, s.zipcode as shipping_address_zipcode\n" +
+           "    FROM user\n" +
+           "\n" +
+           "\tinner JOIN orders o ON user.id = o.user_id\n" +
+           "    inner join line_item on line_item.order_id = o.id\n" +
+           "    inner join product on product.id = line_item.product_id\n" +
+           "\tinner join address b on o.billing_address_id=b.id\n" +
+           "    inner join address s on o.shipping_address_id=s.id";
+
+    /*  String sql = "SELECT \n" +
               "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
               "    o.id as order_id, o.billing_address_id, o.shipping_address_id,\n" +
               "    product.product_name,\n" +
@@ -93,20 +112,9 @@ public class OrderController {
               "    inner join line_item on line_item.order_id = o.id\n" +
               "    inner join product on product.id = line_item.product_id\n" +
               "\tinner join address b on o.billing_address_id=b.id\n" +
-              "    inner join address s on o.shipping_address_id=s.id;";
+              "    inner join address s on o.shipping_address_id=s.id;"; */
 
-      /*  String sql = "SELECT \n" +
-                "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
-                "    orders.id as order_id, orders.billing_address_id, orders.shipping_address_id,\n" +
-                "    product.product_name,\n" +
-                "    product.price,\n" +
-                "    line_item.quantity,\n" +
-                "    orders.order_total\n" +
-                "    FROM user\n" +
-                "    inner JOIN orders ON user.id = orders.user_id\n" +
-                "    inner join line_item on line_item.order_id = orders.id\n" +
-                "    inner join product on product.id = line_item.product_id;";
-*/
+
 
       // String sql = "SELECT * FROM orders INNER jOIN first_name, last_name, email FROM user ON ";
 
@@ -137,7 +145,7 @@ public class OrderController {
 
               Address billing_address =new Address(
                       rs.getInt("billing_address_id"),
-                      null,     //bør vi printe navn? det bliver vel oprettet når brugeren indtaster ordren
+                      null,
                       rs.getString("billing_address"),
                       rs.getString("billing_address_city"),
                       rs.getString("billing_address_zipcode")
@@ -152,7 +160,7 @@ public class OrderController {
               );
 
               Product product =new Product(
-                      0,
+                      rs.getInt("product_id"), // var 0, før ift SQL
                       rs.getString("product_name"),
                       null,
                       rs.getInt("price"),
@@ -162,7 +170,7 @@ public class OrderController {
 
               ArrayList<LineItem> lineItems = new ArrayList<>();
               LineItem lineItem = new LineItem(
-                      0,
+                      rs.getInt("line_item_id"), // var 0, før ift SQL
                       product,
                       rs.getInt("quantity"),
                       0
