@@ -80,17 +80,20 @@ public class OrderController {
 
       String sql = "SELECT \n" +
               "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
-              "    orders.id as order_id, orders.billing_address_id, orders.shipping_address_id,\n" +
+              "    o.id as order_id, o.billing_address_id, o.shipping_address_id,\n" +
               "    product.product_name,\n" +
               "    product.price,\n" +
               "    line_item.quantity,\n" +
-              "    orders.order_total,\n" +
-              "    address.street_address, address.city, address.zipcode\n" +
+              "    o.order_total,\n" +
+              "    b.street_address as billing_address, b.city as billing_address_city, b.zipcode as billing_address_zipcode,\n" +
+              "    s.street_address as shipping_address, s.city as shipping_address_city, s.zipcode as shipping_address_zipcode\n" +
               "    FROM user\n" +
-              "    inner JOIN orders ON user.id = orders.user_id\n" +
-              "    inner join line_item on line_item.order_id = orders.id\n" +
+              "\n" +
+              "\tinner JOIN orders o ON user.id = o.user_id\n" +
+              "    inner join line_item on line_item.order_id = o.id\n" +
               "    inner join product on product.id = line_item.product_id\n" +
-              "    right join address on address.id=orders.billing_address_id and orders.shipping_address_id;";
+              "\tinner join address b on o.billing_address_id=b.id\n" +
+              "    inner join address s on o.shipping_address_id=s.id;";
 
       /*  String sql = "SELECT \n" +
                 "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
@@ -135,17 +138,17 @@ public class OrderController {
               Address billing_address =new Address(
                       rs.getInt("billing_address_id"),
                       null,     //bør vi printe navn? det bliver vel oprettet når brugeren indtaster ordren
-                      rs.getString("city"),
-                      rs.getString("zipcode"),
-                      rs.getString("street_address")
+                      rs.getString("billing_address"),
+                      rs.getString("billing_address_city"),
+                      rs.getString("billing_address_zipcode")
               );
 
               Address shipping_address = new Address(
                       rs.getInt("shipping_address_id"),
                       null,
-                      rs.getString("city"),
-                      rs.getString("zipcode"),
-                      rs.getString("street_address")
+                      rs.getString("shipping_address"),
+                      rs.getString("shipping_address_city"),
+                      rs.getString("shipping_address_zipcode")
               );
 
               Product product =new Product(
