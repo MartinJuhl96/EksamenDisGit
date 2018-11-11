@@ -3,10 +3,11 @@ package controllers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import model.Address;
-import model.LineItem;
-import model.Order;
-import model.User;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import model.*;
 import utils.Log;
 
 public class OrderController {
@@ -76,24 +77,119 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
     // TODO: typo missing 's' in orders : FIX
-    String sql = "SELECT * FROM orders INNER jOIN first_name, last_name, email FROM user ON ";
+
+      String sql = "SELECT \n" +
+              "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
+              "    orders.id as order_id, orders.billing_address_id, orders.shipping_address_id,\n" +
+              "    product.product_name,\n" +
+              "    product.price,\n" +
+              "    line_item.quantity,\n" +
+              "    orders.order_total,\n" +
+              "    address.street_address, address.city, address.zipcode\n" +
+              "    FROM user\n" +
+              "    inner JOIN orders ON user.id = orders.user_id\n" +
+              "    inner join line_item on line_item.order_id = orders.id\n" +
+              "    inner join product on product.id = line_item.product_id\n" +
+              "    right join address on address.id=orders.billing_address_id and orders.shipping_address_id;";
+
+      /*  String sql = "SELECT \n" +
+                "\tuser.id as user_id, user.first_name, user.last_name, user.email, \n" +
+                "    orders.id as order_id, orders.billing_address_id, orders.shipping_address_id,\n" +
+                "    product.product_name,\n" +
+                "    product.price,\n" +
+                "    line_item.quantity,\n" +
+                "    orders.order_total\n" +
+                "    FROM user\n" +
+                "    inner JOIN orders ON user.id = orders.user_id\n" +
+                "    inner join line_item on line_item.order_id = orders.id\n" +
+                "    inner join product on product.id = line_item.product_id;";
+*/
+
+      // String sql = "SELECT * FROM orders INNER jOIN first_name, last_name, email FROM user ON ";
 
     ResultSet rs = dbCon.query(sql);
-    ArrayList<Order> orders = new ArrayList<Order>();
+   // ArrayList<Order> orders = new ArrayList<Order>();
+
+
+      Map<Integer, Order> orders = new HashMap<>();
 
     try {
       while(rs.next()) {
 
 
+          int orderId = rs.getInt("order_id");
+
+          Order order;
+          if (orders.containsKey(orderId)) {
+              order = orders.get(orderId);
+          } else {
+
+              User user = new User(
+                      rs.getInt("user_id"),
+                      rs.getString("first_name"),
+                      rs.getString("last_name"),
+                      null,
+                      rs.getString("email")
+              );
+
+              Address billing_address =new Address(
+                      rs.getInt("billing_address_id"),
+                      null,     //bør vi printe navn? det bliver vel oprettet når brugeren indtaster ordren
+                      rs.getString("city"),
+                      rs.getString("zipcode"),
+                      rs.getString("street_address")
+              );
+
+              Address shipping_address = new Address(
+                      rs.getInt("shipping_address_id"),
+                      null,
+                      rs.getString("city"),
+                      rs.getString("zipcode"),
+                      rs.getString("street_address")
+              );
+
+              Product product =new Product(
+                      0,
+                      rs.getString("product_name"),
+                      null,
+                      rs.getInt("price"),
+                      null,
+                      0
+              );
+
+              ArrayList<LineItem> lineItems = new ArrayList<>();
+              LineItem lineItem = new LineItem(
+                      0,
+                      product,
+                      rs.getInt("quantity"),
+                      0
+              );
+              lineItems.add(lineItem);
+
+
+              order = new Order(
+                      rs.getInt("order_id"),
+                      user,
+                      lineItems,
+                      billing_address,
+                      shipping_address,
+                      rs.getFloat("order_total"),
+                      0,
+                      0
+              );
+
+              orders.put(orderId, order);
+
+
+
+
+          }
+
         //TODO: Perhaps we could optimize things a bit here and get rid of nested queries.
-       User user = UserController.getUser(rs.getInt("user_id"));
-        ArrayList<LineItem> lineItems = LineItemController.getLineItemsForOrder(rs.getInt("id"));
-        Address billingAddress = AddressController.getAddress(rs.getInt("billing_address_id"));
-        Address shippingAddress = AddressController.getAddress(rs.getInt("shipping_address_id"));
 
 
         // Create an order from the database data
-       Order order =
+     /*  Order order =
             new Order(
                 rs.getInt("id"),
                 user,
@@ -102,13 +198,13 @@ public class OrderController {
                 shippingAddress,
                 rs.getFloat("order_total"),
                 rs.getLong("created_at"),
-                rs.getLong("updated_at"));
+                rs.getLong("updated_at"));*/
 
 
 
 
         // Add order to our list
-        orders.add(order);
+  //      orders.add(order);
 
       }
     } catch (SQLException ex) {
@@ -116,7 +212,7 @@ public class OrderController {
     }
 
     // return the orders
-    return orders;
+    return new ArrayList<Order>(orders.values());
   }
 
   public static Order createOrder(Order order) {

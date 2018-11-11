@@ -116,11 +116,11 @@ public class UserEndpoints {
 try{
     if (checkedUser != null) {
 
-        Algorithm algorithm = Algorithm.HMAC256("secret");
+        Algorithm algorithm = Algorithm.HMAC256("secret"); //TODO : SMID "secret" ind i config.json da dette er vores KEY
         String token = JWT.create()
                 .withIssuer("auth0")
                 .withIssuedAt(new Date(System.currentTimeMillis()))
-                .withExpiresAt(new Date(System.currentTimeMillis() + 900000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 60000)) //TODO: hvor længe skal en token gælde? 1 min pt vigtigt ift test 900000 for 15 min
                 .withSubject(Integer.toString(checkedUser.getId()))
                 .sign(algorithm);
 
@@ -199,14 +199,31 @@ try{
       //  return Response.status(400).entity("Endpoint not implemented yet").build();
     }
 
+
+   //Test token verification method
+  @POST
+  @Path("/verifyTester")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response verifyUser(String token){
+
+    User user1 =new Gson().fromJson(token, User.class);
+
+    if (verifyToken(user1.getToken())){
+      return Response.status(200).entity("Din token virker ").build();
+    }
+
+   return Response.status(400).entity("Din token er udløbet").build();
+  }
+
+
     //Verify token
-    private boolean verifyToken (String token, User user) {
+    private boolean verifyToken (String token /*,User user*/) {
     try {
 
       Algorithm algorithm = Algorithm.HMAC256("secret");
       JWTVerifier verifier = JWT.require(algorithm)
               .withIssuer("auth0")
-              .withSubject(Integer.toString(user.getId()))
+              //.withSubject(Integer.toString(user.getId()))
               .build();
       verifier.verify(token);
       return true;
