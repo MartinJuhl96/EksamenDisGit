@@ -114,7 +114,7 @@ public class UserController {
 
     // Insert the user in the DB
     // TODO: Hash the user password before saving it. : FIX
-   user.setPassword(Hashing.sha(user.getPassword()));
+   user.setPassword(Hashing.md5(user.getPassword()));
     int userID = dbCon.insert(
         "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
             + user.getFirstname()
@@ -176,6 +176,7 @@ public class UserController {
       return userDataToUpdate;
   }
 
+  //checks if the user is in the system
   public static User checkUser(String email, String passWord) {
 
     // Check for DB Connection
@@ -209,25 +210,5 @@ public class UserController {
     return user;
   }
 
-/*  public static String getToken(User user){
-
-    // Check for DB Connection
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
-
-    dbCon.query("SELECT token FROM user WHERE id='" +user.getId());
-
-    return user.getToken();
-  }*/
-
-/*  public static String updateToken(User user, String jws) {
-    // Check for DB Connection
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
-  dbCon.update("UPDATE user SET token='"+jws+"'WHERE id='" +user.getId()+"'");
-return jws;
-  }*/
 }
 
