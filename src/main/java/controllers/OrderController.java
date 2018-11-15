@@ -73,6 +73,20 @@ public class OrderController {
                           rs.getString("shipping_address_zipcode")
                   );
 
+                      ArrayList<LineItem> lineItems = new ArrayList<>();
+
+              order = new Order(
+                      rs.getInt("order_id"),
+                      user,
+                      lineItems,
+                      billing_address,
+                      shipping_address,
+                      rs.getFloat("order_total"),
+                      0,
+                      0
+              );
+
+              do {
                   Product product = new Product(
                           rs.getInt("product_id"),
                           rs.getString("product_name"),
@@ -82,26 +96,16 @@ public class OrderController {
                           0
                   );
 
-                      ArrayList<LineItem> lineItems = new ArrayList<>();
-                      LineItem lineItem = new LineItem(
-                              rs.getInt("line_item_id"),
-                              product,
-                              rs.getInt("quantity"),
-                              0
-                      );
-                          lineItems.add(lineItem);
-
-
-                  order = new Order(
-                          rs.getInt("order_id"),
-                          user,
-                          lineItems,
-                          billing_address,
-                          shipping_address,
-                          rs.getFloat("order_total"),
-                          0,
+                  LineItem lineItem = new LineItem(
+                          rs.getInt("line_item_id"),
+                          product,
+                          rs.getInt("quantity"),
                           0
                   );
+                  lineItems.add(lineItem);
+
+              }while (rs.next());
+
 
 
               return order;

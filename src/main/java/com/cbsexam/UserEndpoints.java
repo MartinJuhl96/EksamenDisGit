@@ -149,10 +149,15 @@ public class UserEndpoints {
 
         // Read the json from body and transfer it to a user class
         User chosenUser = new Gson().fromJson(body, User.class);
+
         try {
+            //Verifies if the token coresponds to the user trying to execute delete statement
             if (verifyToken(chosenUser.getToken(), chosenUser)) {
 
                 UserController.deleteUser((chosenUser.getId()));
+
+                //Updates the user cache when a user is deleted
+               userCache.getUsers(true);
 
                 return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(" User with the UserID " + chosenUser.getId() + " has been removed ").build();
 
@@ -192,6 +197,9 @@ public class UserEndpoints {
 
                     String json = new Gson().toJson(updatedUser);
 
+                    //Updates the user cache when a user is updated
+                    userCache.getUsers(true);
+
                     // Return the data to the user
                     // Return a response with status 200 and JSON as type
                     return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("User has been updated to the following: " + json).build();
@@ -225,7 +233,7 @@ public class UserEndpoints {
     private boolean verifyToken(String token, User user) {
         try {
 
-            Algorithm algorithm = Algorithm.HMAC256("secret");
+            Algorithm algorithm = Algorithm.HMAC256(Config.getTokenSecret());
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("auth0")
                     .withSubject(Integer.toString(user.getId()))    //hænger users id i token ikke sammen med det id på den user vi sender med, så sletter vi ikke
