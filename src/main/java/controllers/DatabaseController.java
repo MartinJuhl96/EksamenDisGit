@@ -113,7 +113,6 @@ public class DatabaseController {
           e1.printStackTrace();
         }
       }
-
       finally {
       try {
         connection.setAutoCommit(true);
