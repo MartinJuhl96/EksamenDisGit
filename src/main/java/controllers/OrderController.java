@@ -272,8 +272,6 @@ public class OrderController {
         dbCon = new DatabaseController();
       }
 
-      try{
-        DatabaseController.getConnection().setAutoCommit(false);
       // Save addresses to database and save them back to initial order instance
       order.setBillingAddress(AddressController.createAddress(order.getBillingAddress()));
       order.setShippingAddress(AddressController.createAddress(order.getShippingAddress()));
@@ -314,32 +312,11 @@ public class OrderController {
       }
 
       order.setLineItems(items);
-      DatabaseController.getConnection().commit();
+
 
 
       // Return order
       return order;
     }
-    catch (SQLException e){
-      System.out.println(e.getMessage());
-      //Chech if database connection is closed
-      if (dbCon != null){
-        try {
-          System.out.println("Transaction is being rolled back");
-          DatabaseController.getConnection().rollback();
-        }catch (SQLException e1){
-          System.out.println(e1.getMessage());
-        }
-      }
-    }
-    finally {
-          try {
-              DatabaseController.getConnection().setAutoCommit(true);
-          }catch (SQLException e){
-              System.out.println(e.getMessage());
-          }
-          }
-    return null;
 
-  }
 }//end class
