@@ -30,7 +30,7 @@ public class UserCache {
         // If the list is empty we also check for new products
         if (forceUpdate
                 || ((this.created + this.ttl) <= (System.currentTimeMillis() / 1000L))
-                || this.users==null) {
+                || this.users.isEmpty()) {
 
             // Get products from controller, since we wish to update.
             ArrayList<User> users = UserController.getUsers();

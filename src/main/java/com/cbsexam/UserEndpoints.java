@@ -124,7 +124,7 @@ public class UserEndpoints {
                 String token = JWT.create()
                         .withIssuer("auth0")
                         .withIssuedAt(new Date(System.currentTimeMillis()))
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 900000))
+                        .withExpiresAt(new Date(System.currentTimeMillis() + 900000)) //15 minutes
                         .withSubject(Integer.toString(checkedUser.getId())) //Sets the token subject to the users ID. used later for verification
                         .sign(algorithm);
 

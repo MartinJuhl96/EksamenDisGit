@@ -31,7 +31,7 @@ public class OrderCache {
         // If the list is empty we also check for new products
         if (forceUpdate
                 || ((this.created + this.ttl) <= (System.currentTimeMillis() / 1000L))
-                || this.orders==null) {
+                || this.orders.isEmpty()) {
 
             // Get products from controller, since we wish to update.
             ArrayList<Order> orders = OrderController.getOrders();
