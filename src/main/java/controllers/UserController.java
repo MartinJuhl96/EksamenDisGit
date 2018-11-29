@@ -116,6 +116,7 @@ public class UserController {
 
     // Insert the user in the DB
     // TODO: Hash the user password before saving it. : FIX
+    //Hashes and sets the password here to aviod printing it in plain text
    user.setPassword(Hashing.md5(user.getPassword()));
     int userID = dbCon.insert(
         "INSERT INTO user(first_name, last_name, password, email, created_at) VALUES('"
@@ -123,7 +124,7 @@ public class UserController {
             + "', '"
             + user.getLastname()
             + "', '"
-            + user.getPassword()    //Hashing.md5(user.getPassword);
+            + user.getPassword()
             + "', '"
             + user.getEmail()
             + "', "
@@ -167,10 +168,10 @@ public class UserController {
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
-      // Update the user in the DB
-      // TODO: Hash the updated user password before saving it. FIX(Created TODO by me)
+      //hash the password before updating.
      userDataToUpdate.setPassword(Hashing.md5(userDataToUpdate.getPassword()));
-       dbCon.update(
+      // Update the user in the DB
+      dbCon.update(
                "UPDATE user SET first_name='"+userDataToUpdate.getFirstname()+"', last_name='"+userDataToUpdate.getLastname()+"', password='"+userDataToUpdate.getPassword()+"', email='"+userDataToUpdate.getEmail()+"' WHERE id='"+idUser+"'");
 
 

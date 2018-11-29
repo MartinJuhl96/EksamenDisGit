@@ -44,7 +44,7 @@ public class UserEndpoints {
             String json = new Gson().toJson(user);
             json = Encryption.encryptDecryptXOR(json);
             // Return the user with the status code 200
-            // TODO: What should happen if something breaks down? : FIX for now
+            // TODO: What should happen if something breaks down? : FIX
             if (user == null) {
                 return Response.status(404).entity("User not found").build();
             } else {
@@ -114,7 +114,7 @@ public class UserEndpoints {
 
         //Gets the email and password of the user trying to login, and sends it to checkuser method in UserController.
         //Hashes the password as well as passwords in DB are hashed strings, so we have no plain text passwords
-        User checkedUser = UserController.checkUser(userToValidate.getEmail(), Hashing.md5(userToValidate.getPassword())); //TODO when should we hash password (endpoint or controller)
+        User checkedUser = UserController.checkUser(userToValidate.getEmail(), Hashing.md5(userToValidate.getPassword()));
         //Hashing.md5(userToValidate.getPassword()));
 
         try {
@@ -124,14 +124,14 @@ public class UserEndpoints {
                 String token = JWT.create()
                         .withIssuer("auth0")
                         .withIssuedAt(new Date(System.currentTimeMillis()))
-                        .withExpiresAt(new Date(System.currentTimeMillis() + 900000)) //15 minutes
+                        .withExpiresAt(new Date(System.currentTimeMillis() + 1200000)) //20 minutes
                         .withSubject(Integer.toString(checkedUser.getId())) //Sets the token subject to the users ID. used later for verification
                         .sign(algorithm);
 
                 checkedUser.setToken(token);
                 String json = new Gson().toJson(token);
 
-                return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("You are now logged in. Your Token is as follows \n" + json).build();
+                return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity("You are now logged in. REMEMBER TO SAVE YOUR TOKEN. Your Token is as follows. \n" + json).build();
             } else {
                 return Response.status(400).entity("Access denied. Email or password is wrong. Please try again").build();
             }
@@ -149,17 +149,21 @@ public class UserEndpoints {
 
         // Read the json from body and transfer it to a user class
         User chosenUser = new Gson().fromJson(body, User.class);
+        //get the token from the chosenUser
+        String token = chosenUser.getToken();
+        //get the id from the chosenUser
+        int idUser = chosenUser.getId();
 
         try {
             //Verifies if the token coresponds to the user trying to execute delete statement
-            if (verifyToken(chosenUser.getToken(), chosenUser)) {
+            if (verifyToken(token, idUser)) {
 
-                UserController.deleteUser((chosenUser.getId()));
+                UserController.deleteUser((idUser));
 
                 //Updates the user cache when a user is deleted
                userCache.getUsers(true);
 
-                return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(" User with the UserID " + chosenUser.getId() + " has been removed ").build();
+                return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(" User with the UserID " + idUser + " has been removed ").build();
 
             } else {
                 //Print error message if user is not found
@@ -186,7 +190,7 @@ public class UserEndpoints {
 
         try {
             //Verifies if the token coresponds to the user trying to execute update statement
-            if (verifyToken(token, userDataToUpdate)) {
+            if (verifyToken(token, idUser)) {
                 //checks if the field values are empty. We do not wish to update if empty
                 if (userDataToUpdate.getFirstname().isEmpty() || userDataToUpdate.getLastname().isEmpty() || userDataToUpdate.getPassword().isEmpty() || userDataToUpdate.getEmail().isEmpty()) {
                     return Response.status(400).entity("Please make sure that what you wish to update is correct, and that they all have values. They can't be empty. Should you not wish to update something, please enter the same value again").build();
@@ -212,31 +216,14 @@ public class UserEndpoints {
         }
     }
 
-
-    //Test token verification method
- /* @POST
-  @Path("/verifyTester")
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response verifyUserTester(String token){
-
-    User user1 =new Gson().fromJson(token, User.class);
-
-    if (verifyToken(user1.getToken())){
-      return Response.status(200).entity("Din token virker ").build();
-    }
-
-   return Response.status(400).entity("Din token er udløbet").build();
-  }*/
-
-
     //Verify token
-    private boolean verifyToken(String token, User user) {
+    private boolean verifyToken(String token, int idUser) {
         try {
 
             Algorithm algorithm = Algorithm.HMAC256(Config.getTokenSecret());
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("auth0")
-                    .withSubject(Integer.toString(user.getId()))    //hænger users id i token ikke sammen med det id på den user vi sender med, så sletter vi ikke
+                    .withSubject(Integer.toString(idUser))    //hænger users id i token ikke sammen med det id på den user vi sender med, så sletter vi ikke
                     .build();
             verifier.verify(token);
             return true;

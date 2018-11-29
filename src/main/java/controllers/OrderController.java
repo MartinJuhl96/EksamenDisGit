@@ -261,6 +261,7 @@ public class OrderController {
 
         try {
             connection = dbCon.getConnection();
+            //Set autocommit false, this is by default set as true, reason for set false is that we wish to commit at one statement and not seperately
             connection.setAutoCommit(false);
             // Write in log that we've reach this step
             Log.writeLog(OrderController.class.getName(), order, "Actually creating a order in DB", 0);
@@ -281,7 +282,7 @@ public class OrderController {
             // Save the user to the database and save them back to initial order instance
             order.setCustomer(UserController.createUser(order.getCustomer()));
 
-            // TODO: Enable transactions in order for us to not save the order if somethings fails for some of the other inserts. : FIX (in DB controller)
+            // TODO: Enable transactions in order for us to not save the order if somethings fails for some of the other inserts. : FIX
             // kilde (try-catch)https://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
             // Insert the product in the DB
             int orderID = dbCon.insert(
@@ -307,9 +308,7 @@ public class OrderController {
             // Create an empty list in order to go trough items and then save them back with ID
             ArrayList<LineItem> items = new ArrayList<LineItem>();
 
-            if (true){
-                throw new SQLException();
-            }
+
             // Save line items to database
             for (LineItem item : order.getLineItems()) {
                 item = LineItemController.createLineItem(item, order.getId());
@@ -317,6 +316,7 @@ public class OrderController {
             }
 
             order.setLineItems(items);
+            //Commits all statements together
             connection.commit();
 
             // Return order
@@ -325,6 +325,7 @@ public class OrderController {
             System.out.println(e.getMessage());
             if (connection != null) {
                 try {
+                    //We roll back, so order is not created.
                     System.out.println("Error: Task is being rolled back");
                     connection.rollback();
                 } catch (SQLException e1) {
@@ -333,6 +334,7 @@ public class OrderController {
             }
         } finally {
             try {
+                //Sets autocommit to its default value
                connection.setAutoCommit(true);
             } catch (SQLException e2) {
                 e2.printStackTrace();

@@ -55,14 +55,14 @@ public class AddressController {
   public static Address createAddress(Address address) {
 
     // Write in log that we've reach this step
-    Log.writeLog(ProductController.class.getName(), address, "Actually creating a line item in DB", 0);
+    Log.writeLog(ProductController.class.getName(), address, "Actually creating address in DB", 0);
 
     // Check for DB Connection
     if (dbCon == null) {
       dbCon = new DatabaseController();
     }
 
-    // Insert the product in the DB
+    // Insert the address in the DB
     int addressID = dbCon.insert(
         "INSERT INTO address(name, city, zipcode, street_address) VALUES('"
             + address.getName()
