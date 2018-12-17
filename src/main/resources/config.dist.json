@@ -9,5 +9,10 @@
   "SOLR_PORT" : 8983,
   "SOLR_PATH" : "solr",
   "SOLR_CORE" : "data",
-  "PRODUCT_TTL" : 3600
+  "PRODUCT_TTL" : 3600,
+  "ORDER_TTL" : 3600,
+  "USER_TTL" : 3600,
+  "ENCRYPTIONKEY" : "xxx",
+  "SALT" : "xxx",
+  "TOKEN_SECRET": "xxx"
 }
